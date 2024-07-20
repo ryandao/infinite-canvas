@@ -66,6 +66,7 @@ export interface ReactInfiniteCanvasProps {
   }>;
   onCanvasMount?: (functions: ReactInfiniteCanvasHandle) => void;
   onTransform?: (zoomState: any) => void;
+  disablePanningClasses?: string[];
 }
 
 export type ReactInfiniteCanvasHandle = {
@@ -155,6 +156,7 @@ const ReactInfiniteCanvasRenderer = memo(
     backgroundConfig = {},
     onCanvasMount = () => {},
     onTransform: onTransform = () => {},
+    disablePanningClasses = [],
   }: ReactInfiniteCanvasRendererProps) => {
     const canvasWrapperRef = useRef<HTMLDivElement | null>(null);
     const canvasWrapperBounds = useRef<any>(null);
@@ -163,6 +165,7 @@ const ReactInfiniteCanvasRenderer = memo(
     const scrollBarRef = useRef<any>(null);
     const flowRendererRef = children.ref;
     const isUserPressed = useRef<boolean | null>(null);
+    const isSpacePressed = useRef<boolean | null>(null);
 
     const d3Zoom = useMemo(() => {
       return zoom<SVGAElement, unknown>().scaleExtent([minZoom, maxZoom]);
@@ -206,6 +209,28 @@ const ReactInfiniteCanvasRenderer = memo(
       getCanvasState,
     }));
 
+    useEffect(() => {
+      const onKeyDown = (event: KeyboardEvent) => {
+        if (event.code === "Space") {
+          isSpacePressed.current = true;
+        }
+      };
+
+      const onKeyUp = (event: KeyboardEvent) => {
+        if (event.code === "Space") {
+          isSpacePressed.current = false;
+        }
+      };
+
+      window.addEventListener("keydown", onKeyDown);
+      window.addEventListener("keyup", onKeyUp);
+
+      return () => {
+        window.removeEventListener("keydown", onKeyDown);
+        window.removeEventListener("keyup", onKeyUp);
+      };
+    }, []);
+
     useEffect(
       function zoomAndPanHandler() {
         d3Selection.current = select(canvasRef.current).call(d3Zoom);
@@ -215,10 +240,23 @@ const ReactInfiniteCanvasRenderer = memo(
           : {};
 
         d3Zoom
-          .filter((event: { type: string; ctrlKey: any }) => {
+          .filter((event: { type: string; ctrlKey: any, target: HTMLElement }) => {
             if (event.type === "mousedown" && !isUserPressed.current) {
               isUserPressed.current = true;
               onMouseDown();
+            }
+
+            // Return false if the target has one of disablePanningClasses
+            // or a child of an element with disablePanningClasses.
+            // Unless the user is holding the space key.
+            if (!isSpacePressed.current) {
+              let target: HTMLElement | null = event.target;
+              while (target) {
+                if (disablePanningClasses.filter((className) => target?.classList.contains(className)).length > 0) {
+                  return false;
+                }
+                target = target.parentElement;
+              }
             }
 
             return event.ctrlKey || event.type !== "wheel";
