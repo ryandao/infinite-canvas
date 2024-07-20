@@ -22,9 +22,9 @@ import {
 import { clampValue, getUpdatedNodePosition } from "./helpers/utils";
 
 import styles from "./App.module.css";
-import { ScrollBar } from "./components/scrollBar/scrollbar";
+import { ScrollBar } from "./components/ScrollBar/scrollbar";
 
-const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
+const isSafari = false
 const TIME_TO_WAIT = isSafari ? 600 : 300;
 
 export interface ReactInfiniteCanvasProps {
@@ -65,6 +65,7 @@ export interface ReactInfiniteCanvasProps {
     className?: string;
   }>;
   onCanvasMount?: (functions: ReactInfiniteCanvasHandle) => void;
+  onTransform?: (zoomState: any) => void;
 }
 
 export type ReactInfiniteCanvasHandle = {
@@ -153,6 +154,7 @@ const ReactInfiniteCanvasRenderer = memo(
     scrollBarConfig = {},
     backgroundConfig = {},
     onCanvasMount = () => {},
+    onTransform: onTransform = () => {},
   }: ReactInfiniteCanvasRendererProps) => {
     const canvasWrapperRef = useRef<HTMLDivElement | null>(null);
     const canvasWrapperBounds = useRef<any>(null);
@@ -285,6 +287,10 @@ const ReactInfiniteCanvasRenderer = memo(
       // eslint-disable-next-line react-hooks/exhaustive-deps
       []
     );
+
+    useEffect(() => {
+      onTransform(zoomTransform);
+    }, [onTransform, zoomTransform]);
 
     d3Selection.current
       .call(zoom)
