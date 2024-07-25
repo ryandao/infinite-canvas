@@ -246,7 +246,6 @@ const ReactInfiniteCanvasRenderer = memo(
           .filter((event: { type: string; ctrlKey: any, target: HTMLElement }) => {
             if (event.type === "mousedown" && !isUserPressed.current) {
               isUserPressed.current = true;
-              onMouseDown();
             }
 
             // Return false if the target has one of disablePanningClasses
@@ -569,20 +568,6 @@ const ReactInfiniteCanvasRenderer = memo(
         currentPosition: d3Selection.current.property("__zoom"),
         d3Zoom,
       };
-    };
-
-    const onMouseDown = () => {
-      const bodyElement = document.body;
-      if (bodyElement) {
-        const mouseDownEvent = new MouseEvent("mousedown", {
-          bubbles: true,
-          cancelable: true,
-          view: window,
-        });
-
-        // Dispatch the mousedown event on the body element
-        bodyElement.dispatchEvent(mouseDownEvent);
-      }
     };
 
     const getContainerOffset = useCallback(function offsetHandler(
