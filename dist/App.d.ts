@@ -42,7 +42,8 @@ export interface ReactInfiniteCanvasProps {
     }>;
     onCanvasMount?: (functions: ReactInfiniteCanvasHandle) => void;
     onTransform?: (zoomState: any) => void;
-    disablePanningClasses?: string[];
+    disableMousePanningClasses?: string[];
+    disableScrollPanningClasses?: string[];
 }
 export type ReactInfiniteCanvasHandle = {
     scrollNodeToCenter: ({ nodeElement, offset, scale, shouldUpdateMaxScale, maxScale, transitionDuration, }: {

@@ -69,7 +69,8 @@ export interface ReactInfiniteCanvasProps {
   }>;
   onCanvasMount?: (functions: ReactInfiniteCanvasHandle) => void;
   onTransform?: (zoomState: any) => void;
-  disablePanningClasses?: string[];
+  disableMousePanningClasses?: string[];
+  disableScrollPanningClasses?: string[];
 }
 
 export type ReactInfiniteCanvasHandle = {
@@ -159,7 +160,8 @@ const ReactInfiniteCanvasRenderer = memo(
     backgroundConfig = {},
     onCanvasMount = () => {},
     onTransform: onTransform = () => {},
-    disablePanningClasses = [],
+    disableMousePanningClasses = [],
+    disableScrollPanningClasses = [],
   }: ReactInfiniteCanvasRendererProps) => {
     const canvasWrapperRef = useRef<HTMLDivElement | null>(null);
     const canvasWrapperBounds = useRef<any>(null);
@@ -249,12 +251,12 @@ const ReactInfiniteCanvasRenderer = memo(
             }
 
             // Return false if the target has one of disablePanningClasses
-            // or a child of an element with disablePanningClasses.
+            // or a child of an element with disableMousePanningClasses.
             // Unless the user is holding the space key.
             if (!isSpacePressed.current) {
               let target: HTMLElement | null = event.target;
               while (target) {
-                if (disablePanningClasses.filter((className) => target?.classList.contains(className)).length > 0) {
+                if (disableMousePanningClasses.filter((className) => target?.classList.contains(className)).length > 0) {
                   return false;
                 }
                 target = target.parentElement;
@@ -342,11 +344,21 @@ const ReactInfiniteCanvasRenderer = memo(
           ctrlKey: any;
           deltaY: number;
           deltaX: any;
+          target: HTMLElement;
         }) => {
           event.preventDefault();
           const currentZoom = d3Selection.current.property("__zoom").k || 1;
 
           if (panOnScroll && !event.ctrlKey) {
+            // If the target has one of the disableScrollPanningClasses, don't pan
+            let target: HTMLElement | null = event.target;
+            while (target) {
+              if (disableScrollPanningClasses.filter((className) => target?.classList.contains(className)).length > 0) {
+                return;
+              }
+              target = target.parentElement;
+            }
+
             const scrollDeltaValue = {
               deltaX: event.deltaX,
               deltaY: event.deltaY,
