@@ -346,7 +346,6 @@ const ReactInfiniteCanvasRenderer = memo(
           deltaX: any;
           target: HTMLElement;
         }) => {
-          event.preventDefault();
           const currentZoom = d3Selection.current.property("__zoom").k || 1;
 
           if (panOnScroll && !event.ctrlKey) {
@@ -359,6 +358,7 @@ const ReactInfiniteCanvasRenderer = memo(
               target = target.parentElement;
             }
 
+            event.preventDefault();
             const scrollDeltaValue = {
               deltaX: event.deltaX,
               deltaY: event.deltaY,
@@ -366,6 +366,7 @@ const ReactInfiniteCanvasRenderer = memo(
             scrollBarRef.current?.onScrollDeltaChangeHandler(scrollDeltaValue);
             onScrollDeltaHandler(scrollDeltaValue);
           } else {
+            event.preventDefault();
             const nextZoom = currentZoom * Math.pow(2, -event.deltaY * 0.01);
             d3Zoom.scaleTo(d3Selection.current, nextZoom, pointer(event));
           }

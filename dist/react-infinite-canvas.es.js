@@ -3123,7 +3123,6 @@ const Ie = we ? 600 : 300, ws = In(({ children: t, ...e }, n) => {
       "wheel.zoom",
       (v) => {
         var p;
-        v.preventDefault();
         const d = k.current.property("__zoom").k || 1;
         if (i && !v.ctrlKey) {
           let y = v.target;
@@ -3132,12 +3131,14 @@ const Ie = we ? 600 : 300, ws = In(({ children: t, ...e }, n) => {
               return;
             y = y.parentElement;
           }
+          v.preventDefault();
           const E = {
             deltaX: v.deltaX,
             deltaY: v.deltaY
           };
           (p = b.current) == null || p.onScrollDeltaChangeHandler(E), U(E);
         } else {
+          v.preventDefault();
           const y = d * Math.pow(2, -v.deltaY * 0.01);
           F.scaleTo(k.current, y, Et(v));
         }
