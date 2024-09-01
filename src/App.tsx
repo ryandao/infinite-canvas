@@ -245,7 +245,12 @@ const ReactInfiniteCanvasRenderer = memo(
           : {};
 
         d3Zoom
-          .filter((event: { type: string; ctrlKey: any, target: HTMLElement }) => {
+          .filter((event: {
+            type: string;
+            ctrlKey: any,
+            metaKey: any,
+            target: HTMLElement
+          }) => {
             if (event.type === "mousedown" && !isUserPressed.current) {
               isUserPressed.current = true;
             }
@@ -263,17 +268,18 @@ const ReactInfiniteCanvasRenderer = memo(
               }
             }
 
-            return event.ctrlKey || event.type !== "wheel";
+            return event.ctrlKey || event.metaKey || event.type !== "wheel";
           })
           .on(
             "zoom",
             (event: {
-              sourceEvent: { ctrlKey: boolean };
+              sourceEvent: { ctrlKey: boolean, metaKey: boolean };
               type: string;
               transform: any;
             }) => {
               if (
                 event.sourceEvent?.ctrlKey === false &&
+                event.sourceEvent?.metaKey === false &&
                 event.type === "zoom"
               ) {
                 canvasWrapperRef.current?.classList.add(styles.panning);
@@ -342,13 +348,14 @@ const ReactInfiniteCanvasRenderer = memo(
         (event: {
           preventDefault: () => void;
           ctrlKey: any;
+          metaKey: any;
           deltaY: number;
           deltaX: any;
           target: HTMLElement;
         }) => {
           const currentZoom = d3Selection.current.property("__zoom").k || 1;
 
-          if (panOnScroll && !event.ctrlKey) {
+          if (panOnScroll && !event.ctrlKey && !event.metaKey) {
             // If the target has one of the disableScrollPanningClasses, don't pan
             let target: HTMLElement | null = event.target;
             while (target) {
