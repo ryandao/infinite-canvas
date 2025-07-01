@@ -68,7 +68,7 @@ ReactDOM.render(<InfiniteCanvas />, document.getElementById("root"));
 ## API
 
 | Property         | Type            | Default                             | Description                                                            |
-| ---------------- | --------------- | ----------------------------------- | ---------------------------------------------------------------------- |                          
+| ---------------- | --------------- | ----------------------------------- | ---------------------------------------------------------------------- |
 | children         | ReactNode       | -                                   | Element to be placed inside the canvas                                 |
 | minZoom          | number          | 0.1                                 | minimum limit for zooming                                              |
 | maxZoom          | number          | 4                                   | maximum limit for zooming                                              |
@@ -77,3 +77,7 @@ ReactDOM.render(<InfiniteCanvas />, document.getElementById("root"));
 | scrollBarConfig   | object         | { startingPosition: { x: 0, y: 0}, offset: { x: 0, y: 0}, color: "grey", thickness: "8px", minSize: "15px }                                    | To style the scrollbar to your preference                              |
 | customComponents | object          | -                                   | An array of components you can pass to render on canvas at any position|
 | onCanvasMount    | function        | -                                   | A function that is triggered once the canvas is mounted                |
+
+## Build
+
+`npm run build` and then commit the dist folder.

@@ -124,6 +124,17 @@ export type ReactInfiniteCanvasHandle = {
     scale?: number;
     maxZoomLimit?: number;
   }) => void;
+  setCanvasPosition: ({
+    scale,
+    translateX,
+    translateY,
+    transitionDuration,
+  }: {
+    scale?: number;
+    translateX?: number;
+    translateY?: number;
+    transitionDuration?: number;
+  }) => void;
   getCanvasState: () => any;
 };
 
@@ -211,6 +222,7 @@ const ReactInfiniteCanvasRenderer = memo(
       scrollNodeHandler,
       scrollContentHorizontallyCenter,
       fitContentToView,
+      setCanvasPosition,
       getCanvasState,
     }));
 
@@ -329,6 +341,7 @@ const ReactInfiniteCanvasRenderer = memo(
           scrollNodeHandler,
           scrollContentHorizontallyCenter,
           fitContentToView,
+          setCanvasPosition,
           getCanvasState,
         });
       },
@@ -458,6 +471,57 @@ const ReactInfiniteCanvasRenderer = memo(
               // @ts-ignore
               .transition()
               .duration(duration)
+              .call(d3Zoom.transform, newTransform);
+          },
+          { timeout: TIME_TO_WAIT }
+        );
+      },
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+      [maxZoom, minZoom]
+    );
+
+    const setCanvasPosition = useCallback(
+      function setCanvasPositionHandler({
+        scale,
+        translateX,
+        translateY,
+        transitionDuration = 300,
+      }: {
+        scale?: number;
+        translateX?: number;
+        translateY?: number;
+        transitionDuration?: number;
+      }) {
+        requestIdleCallback(
+          () => {
+            const canvasNode = select(canvasRef.current);
+            const currentZoom = d3Selection.current.property("__zoom");
+            const { k: currentScale, x: currentTranslateX, y: currentTranslateY } = currentZoom;
+
+            // Use provided values or keep current values
+            const newScale = scale !== undefined ? clampValue({
+              value: scale,
+              min: minZoom,
+              max: maxZoom,
+            }) : currentScale;
+            const newTranslateX = translateX !== undefined ? translateX : currentTranslateX;
+            const newTranslateY = translateY !== undefined ? translateY : currentTranslateY;
+
+            const newTransform = zoomIdentity
+              .translate(newTranslateX, newTranslateY)
+              .scale(newScale);
+
+            setZoomTransform({
+              translateX: newTranslateX,
+              translateY: newTranslateY,
+              scale: newScale
+            });
+            scrollBarRef.current?.resetScrollPos();
+
+            canvasNode
+              // @ts-ignore
+              .transition()
+              .duration(transitionDuration)
               .call(d3Zoom.transform, newTransform);
           },
           { timeout: TIME_TO_WAIT }

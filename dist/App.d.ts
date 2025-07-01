@@ -82,6 +82,12 @@ export type ReactInfiniteCanvasHandle = {
         scale?: number;
         maxZoomLimit?: number;
     }) => void;
+    setCanvasPosition: ({ scale, translateX, translateY, transitionDuration, }: {
+        scale?: number;
+        translateX?: number;
+        translateY?: number;
+        transitionDuration?: number;
+    }) => void;
     getCanvasState: () => any;
 };
 export declare const ReactInfiniteCanvas: React.FC<ReactInfiniteCanvasProps>;
